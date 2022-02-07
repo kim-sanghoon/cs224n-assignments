@@ -102,7 +102,7 @@
 
 \newcommand{\hmwkTitle}{word2vec (48 Points)} % Assignment title
 \newcommand{\hmwkClass}{CS\ 224n Assignment \#2} % Course/class
-%\newcommand{\hmwkAuthorName}{Abigail See, Sahil Chopra} % Your name
+\newcommand{\hmwkAuthorName}{Sanghoon Kim} % Your name
 
 \newcommand{\ifans}[1]{\ifanswers \color{red} \vspace{5mm} \textbf{Solution: } #1 \color{black} \vspace{5mm} \fi}
 
@@ -184,7 +184,7 @@ Prove that the naive-softmax loss (Equation \ref{naive-softmax}) is the same as 
 Your answer should be one line. You may describe your answer in words.
 \begin{shaded}
 \begin{answer}
-
+$\bm y$ is a one-hot vector, so ${\bm y}_w = 0$ for every $w \neq o$.
 \end{answer}
 \end{shaded}
 
@@ -201,6 +201,26 @@ Your answer should be one line. You may describe your answer in words.
 \begin{shaded}
 \begin{answer}
 
+\begin{equation*}
+    \bm{J}
+    = - \log \frac{\exp(\bm u_{o}^\top \bm v_c)}{\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)}
+    = \log \sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c) - {\bm u_{o}^\top \bm v_c}
+\end{equation*}
+
+Thus, the partial derivative $\frac{\partial \bm J}{\partial \bm v_c}$ is
+\begin{align*}
+    \frac{\partial \bm J}{\partial \bm v_c}
+    &= \sum_{w \in \text{Vocab}} \frac{\exp(\bm u_{w}^\top \bm v_c) \bm{u}_{w}^\top}{\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)} - \bm{u}_o \\
+    &= \sum_{w \in \text{Vocab}} P(O=w|C=c) \bm{u}_w - \bm{u}_o \\
+    &= \sum_{w \in \text{Vocab}} \hat{\bm y}_w \bm{u}_w - \bm{u}_o \\
+    &= U(\hat{\bm y} - \bm{y})
+\end{align*}
+
+\begin{enumerate}[label=(\arabic*)]
+    \item The gradient is zero when $\hat{\bm y} = \bm{y}$.
+    \item It is because $\bm y$ is a conditional probability of $\bm u_o$ over $\bm v_c$.
+\end{enumerate}
+
 \end{answer}
 \end{shaded}
 
@@ -210,6 +230,22 @@ Your answer should be one line. You may describe your answer in words.
 \begin{shaded}
 \begin{answer}
 
+\begin{itemize}
+    \item if $w = o$,
+        \begin{align*}
+            \frac{\partial \bm J}{\partial \bm u_w}
+            &= \frac{\exp(\bm u_{w}^\top \bm v_c) \bm{v}_{c}}{\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)} - \bm{v}_c \\
+            &= \hat{\bm y}_w \bm{v}_c - \bm{v}_c \\
+            &= (\hat{\bm y}_w - 1) \bm{v}_c
+        \end{align*}
+    \item if $w \neq o$,
+        \begin{align*}
+            \frac{\partial \bm J}{\partial \bm u_w}
+            &= \frac{\exp(\bm u_{w}^\top \bm v_c) \bm{v}_{c}}{\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)} \\
+            &= \hat{\bm y}_w \bm{v}_c
+        \end{align*}
+\end{itemize}
+
 \end{answer}
 \end{shaded}
 
@@ -218,6 +254,11 @@ Your answer should be one line. You may describe your answer in words.
 
 \begin{shaded}
 \begin{answer}
+
+\begin{align*}
+    \frac{\partial \bm J}{\partial \bm U}
+    = (\hat{\bm y} - \bm{y}) \bm{v}_c
+\end{align*}
 
 \end{answer}
 \end{shaded}
@@ -234,6 +275,14 @@ Please compute the derivative of $f(x)$ with respect to $x$, where $x$ is a scal
 \begin{shaded}
 \begin{answer}
 
+\begin{equation*}
+    f'(x) =
+    \begin{cases}
+        1 & \text{($x \geq 0$)} \\
+        0 & \text{($x < 0$)}
+    \end{cases}
+\end{equation*}
+
 \end{answer}
 \end{shaded}
 
@@ -249,6 +298,12 @@ Please compute the derivative of $\sigma(x)$ with respect to $x$, where $x$ is a
 
 \begin{shaded}
 \begin{answer}
+
+\begin{align*}
+    \sigma '(x)
+    &= \frac{e^x (e^x + 1) - e^{2x}}{(e^x + 1)^2} \\
+    &= \frac{e^x}{(e^x + 1)^2} = \sigma (x) \cdot \frac{1}{e^x + 1} = \sigma (x) (1 - \sigma (x))
+\end{align*}
 
 \end{answer}
 \end{shaded}

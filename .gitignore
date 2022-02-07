@@ -1,1 +1,16 @@
+# common
+.DS_Store
+
+# from assignment 1
 .ipynb_checkpoints
+
+# from assignment 2 - written
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.pyg
+*.dvi
+*.synctex.gz
+_minted-*
