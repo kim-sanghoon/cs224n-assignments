@@ -331,6 +331,28 @@ Caveat: So far we have looked at re-using quantities and approximating softmax w
 \begin{shaded}
 \begin{answer}
 
+\begin{enumerate}[label=(\roman*)]
+    \item
+        \begin{align*}
+            \frac{\partial \bm J}{\partial \bm v_c}
+            &= - \frac{\sigma'(\bm u_o^\top \bm v_c)}{\sigma(\bm u_o^\top \bm v_c)} \cdot \bm{u}_o
+               - \sum_{s=1}^K \frac{\sigma'(-\bm u_{w_s}^\top \bm v_c)}{\sigma(-\bm u_{w_s}^\top \bm v_c)} \cdot \bm{u_{w_s}} \\
+            &= (\sigma(\bm u_o^\top \bm v_c) - 1) \cdot \bm{u}_o + \sum_{s=1}^K \sigma(\bm u_{w_s}^\top \bm v_c) \cdot \bm{u_{w_s}}
+        \end{align*}
+        \begin{align*}
+            \frac{\partial \bm J}{\partial \bm u_o}
+            &= - \frac{\sigma'(\bm u_o^\top \bm v_c)}{\sigma(\bm u_o^\top \bm v_c)} \cdot \bm{v}_c \\
+            &= (\sigma(\bm u_o^\top \bm v_c) - 1) \cdot \bm{v}_c
+        \end{align*}
+        \begin{align*}
+            \frac{\partial \bm J}{\partial \bm u_{w_s}}
+            &= - \sum_{s=1}^K \frac{\sigma'(-\bm u_{w_s}^\top \bm v_c)}{\sigma(-\bm u_{w_s}^\top \bm v_c)} \cdot \bm{v_{c}} \\
+            &= \sum_{s=1}^K \sigma(\bm u_{w_s}^\top \bm v_c) \cdot \bm{v_c}
+        \end{align*}
+    \item Because $1 - \sigma(\bm u_o^\top \bm v_c)$ and $\sum_{s=1}^K 1 - \sigma(-\bm u_{w_s}^\top \bm v_c)$ are reused over the three derivatives, we can use $\bm{1} - \bm{U}\bm{v}_c$ to minimize computation.
+    \item While naive-softmax loss requires a softmax operation over entire \text{Vocab}, negative sampling loss only requires computation over smaller negative samples.
+\end{enumerate}
+
 \end{answer}
 \end{shaded}
 
@@ -348,6 +370,21 @@ Compute the partial derivative of $\bm J_{\text{neg-sample}}$ with respect to a 
 
 \begin{shaded}
 \begin{answer}
+
+First, decompose the sum into two:
+\begin{equation*}
+    \bm{J}
+    = -\log(\sigma(\bm u_o^\top \bm v_c))
+    - \sum_{\substack{k \in [1, K] \\ w_k = w_s}} \log(\sigma(-\bm u_{w_k}^\top \bm v_c))
+    - \sum_{\substack{k \in [1, K] \\ w_k \ne w_s}} \log(\sigma(-\bm u_{w_k}^\top \bm v_c))
+\end{equation*}
+
+Calculating the gradient $\frac{\partial \bm J}{\partial \bm w_s}$,
+\begin{align*}
+    \frac{\partial \bm J}{\partial \bm w_s}
+    &= \sum_{\substack{k \in [1, K] \\ w_k = w_s}} \sigma(\bm u_{w_k}^\top \bm v_c) \cdot \bm{v}_c \\
+    &= \sigma(\bm u_{w_s}^\top \bm v_c) \cdot \bm{v}_c \cdot \sum_{\substack{k \in [1, K] \\ w_k = w_s}} 1
+\end{align*}
 
 \end{answer}
 \end{shaded}
@@ -371,6 +408,24 @@ Write your answers in terms of ${\frac{\partial \bm J(\bm v_c, w_{t+j}, \bm U)}{
 
 \begin{shaded}
 \begin{answer}
+
+\begin{enumerate}[label=(\roman*)]
+    \item 
+        \begin{equation*}
+            {\frac{\partial \bm J_{\textrm{skip-gram}}(\bm v_c, w_{t-m},\ldots w_{t+m}, \bm U)} {\partial \bm U}}
+            = \sum_{\substack{-m\le j \le m \\ j\ne 0}} {\frac{\partial \bm J(\bm v_c, w_{t+j}, \bm U)}{\partial \bm U}}
+        \end{equation*}
+    \item
+        \begin{equation*}
+            {\frac{\partial \bm J_{\textrm{skip-gram}}(\bm v_c, w_{t-m},\ldots w_{t+m}, \bm U)} {\partial \bm v_c}}
+            = \sum_{\substack{-m\le j \le m \\ j\ne 0}} {\frac{\partial \bm J(\bm v_c, w_{t+j}, \bm U)}{\partial \bm v_c}}
+        \end{equation*}
+    \item
+        \begin{equation*}
+            {\frac{\partial \bm J_{\textrm{skip-gram}}(\bm v_c, w_{t-m},\ldots w_{t+m}, \bm U)} {\partial \bm v_w}}
+            = 0 \text{ (when $w \ne c$)}
+        \end{equation*}
+\end{enumerate}
 
 \end{answer}
 \end{shaded}
