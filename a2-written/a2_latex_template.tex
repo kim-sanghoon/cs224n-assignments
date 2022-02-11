@@ -346,10 +346,10 @@ Caveat: So far we have looked at re-using quantities and approximating softmax w
         \end{align*}
         \begin{align*}
             \frac{\partial \bm J}{\partial \bm u_{w_s}}
-            &= - \sum_{s=1}^K \frac{\sigma'(-\bm u_{w_s}^\top \bm v_c)}{\sigma(-\bm u_{w_s}^\top \bm v_c)} \cdot \bm{v_{c}} \\
-            &= \sum_{s=1}^K \sigma(\bm u_{w_s}^\top \bm v_c) \cdot \bm{v_c}
+            &= - \frac{\sigma'(-\bm u_{w_s}^\top \bm v_c)}{\sigma(-\bm u_{w_s}^\top \bm v_c)} \cdot \bm{v_{c}} \\
+            &= \sigma(\bm u_{w_s}^\top \bm v_c) \cdot \bm{v_c}
         \end{align*}
-    \item Because $1 - \sigma(\bm u_o^\top \bm v_c)$ and $\sum_{s=1}^K 1 - \sigma(-\bm u_{w_s}^\top \bm v_c)$ are reused over the three derivatives, we can use $\bm{1} - \bm{U}\bm{v}_c$ to minimize computation.
+    \item Because $1 - \sigma(\bm u_o^\top \bm v_c)$ and $1 - \sigma(-\bm u_{w_s}^\top \bm v_c)$ (where $s \in [1, K]$) are reused over the three derivatives, we can use $\bm{1} - \sigma(\bm{U}\bm{v}_c)$ to minimize computation.
     \item While naive-softmax loss requires a softmax operation over entire \text{Vocab}, negative sampling loss only requires computation over smaller negative samples.
 \end{enumerate}
 
@@ -379,9 +379,9 @@ First, decompose the sum into two:
     - \sum_{\substack{k \in [1, K] \\ w_k \ne w_s}} \log(\sigma(-\bm u_{w_k}^\top \bm v_c))
 \end{equation*}
 
-Calculating the gradient $\frac{\partial \bm J}{\partial \bm w_s}$,
+Calculating the gradient $\frac{\partial \bm J}{\partial \bm u_{w_s}}$,
 \begin{align*}
-    \frac{\partial \bm J}{\partial \bm w_s}
+    \frac{\partial \bm J}{\partial \bm u_{w_s}}
     &= \sum_{\substack{k \in [1, K] \\ w_k = w_s}} \sigma(\bm u_{w_k}^\top \bm v_c) \cdot \bm{v}_c \\
     &= \sigma(\bm u_{w_s}^\top \bm v_c) \cdot \bm{v}_c \cdot \sum_{\substack{k \in [1, K] \\ w_k = w_s}} 1
 \end{align*}

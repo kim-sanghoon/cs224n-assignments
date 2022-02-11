@@ -16,7 +16,7 @@ def gradcheck_naive(f, x, gradientText):
     Notes:
     Note that gradient checking is a sanity test that only checks whether the
     gradient and loss values produced by your implementation are consistent with
-    each other. Gradient check passing on its own doesn’t guarantee that you
+    each other. Gradient check passing on its own doesn't guarantee that you
     have the correct gradients. It will pass, for example, if both the loss and
     gradient values produced by your implementation are 0s (as is the case when
     you have not implemented anything). Here is a detailed explanation of what

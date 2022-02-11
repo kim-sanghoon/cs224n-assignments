@@ -18,7 +18,7 @@ def sigmoid(x):
     """
 
     ### YOUR CODE HERE (~1 Line)
-
+    s = np.exp(x) / np.add(np.exp(x), 1)
     ### END YOUR CODE
 
     return s
@@ -60,11 +60,13 @@ def naiveSoftmaxLossAndGradient(
     """
 
     ### YOUR CODE HERE (~6-8 Lines)
+    y_hat = softmax(outsideVectors @ centerWordVec)
+    y = np.zeros(y_hat.shape)
+    y[outsideWordIdx] = 1
 
-    ### Please use the provided softmax function (imported earlier in this file)
-    ### This numerically stable implementation helps you avoid issues pertaining
-    ### to integer overflow. 
-
+    loss = np.negative(np.log(y_hat[outsideWordIdx]))
+    gradCenterVec = outsideVectors.transpose() @ (y_hat - y)
+    gradOutsideVecs = np.tile(y_hat - y, (centerWordVec.shape[0], 1)).transpose() * centerWordVec
     ### END YOUR CODE
 
     return loss, gradCenterVec, gradOutsideVecs
@@ -109,9 +111,17 @@ def negSamplingLossAndGradient(
     indices = [outsideWordIdx] + negSampleWordIndices
 
     ### YOUR CODE HERE (~10 Lines)
+    from collections import Counter
 
-    ### Please use your implementation of sigmoid in here.
+    negSampleVectors = outsideVectors[indices]
+    reusedVectors = np.subtract(1, sigmoid(negSampleVectors @ centerWordVec))
+    indicesCounter = Counter(indices)
+    indicesOccurrence = np.tile([indicesCounter[i] for i in indices], (centerWordVec.shape[0], 1)).transpose()
 
+    loss = np.negative(np.sum(np.log(sigmoid(negSampleVectors @ centerWordVec))))
+    gradCenterVec = np.negative(np.sum(np.tile(reusedVectors, (negSampleVectors.shape[1], 1)).transpose() * negSampleVectors, axis=0))
+    gradOutsideVecs = np.zeros(outsideVectors.shape)
+    gradOutsideVecs[indices] = np.negative(np.tile(reusedVectors, (centerWordVec.shape[0], 1)).transpose() * centerWordVec * indicesOccurrence)
     ### END YOUR CODE
 
     return loss, gradCenterVec, gradOutsideVecs
