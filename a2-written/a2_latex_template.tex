@@ -346,8 +346,8 @@ Caveat: So far we have looked at re-using quantities and approximating softmax w
         \end{align*}
         \begin{align*}
             \frac{\partial \bm J}{\partial \bm u_{w_s}}
-            &= - \frac{\sigma'(-\bm u_{w_s}^\top \bm v_c)}{\sigma(-\bm u_{w_s}^\top \bm v_c)} \cdot \bm{v_{c}} \\
-            &= \sigma(\bm u_{w_s}^\top \bm v_c) \cdot \bm{v_c}
+            &= \frac{\sigma'(-\bm u_{w_s}^\top \bm v_c)}{\sigma(-\bm u_{w_s}^\top \bm v_c)} \cdot \bm{v_{c}} \\
+            &= (1 - \sigma(-\bm u_{w_s}^\top \bm v_c)) \cdot \bm{v_c}
         \end{align*}
     \item Because $1 - \sigma(\bm u_o^\top \bm v_c)$ and $1 - \sigma(-\bm u_{w_s}^\top \bm v_c)$ (where $s \in [1, K]$) are reused over the three derivatives, we can use $\bm{1} - \sigma(\bm{U}\bm{v}_c)$ to minimize computation.
     \item While naive-softmax loss requires a softmax operation over entire \text{Vocab}, negative sampling loss only requires computation over smaller negative samples.

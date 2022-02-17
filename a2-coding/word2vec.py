@@ -114,6 +114,7 @@ def negSamplingLossAndGradient(
     from collections import Counter
 
     negSampleVectors = outsideVectors[indices]
+    negSampleVectors[1:] = np.negative(negSampleVectors[1:])
     reusedVectors = np.subtract(1, sigmoid(negSampleVectors @ centerWordVec))
     indicesCounter = Counter(indices)
     indicesOccurrence = np.tile([indicesCounter[i] for i in indices], (centerWordVec.shape[0], 1)).transpose()
@@ -121,7 +122,8 @@ def negSamplingLossAndGradient(
     loss = np.negative(np.sum(np.log(sigmoid(negSampleVectors @ centerWordVec))))
     gradCenterVec = np.negative(np.sum(np.tile(reusedVectors, (negSampleVectors.shape[1], 1)).transpose() * negSampleVectors, axis=0))
     gradOutsideVecs = np.zeros(outsideVectors.shape)
-    gradOutsideVecs[indices] = np.negative(np.tile(reusedVectors, (centerWordVec.shape[0], 1)).transpose() * centerWordVec * indicesOccurrence)
+    gradOutsideVecs[indices] = np.tile(reusedVectors, (centerWordVec.shape[0], 1)).transpose() * centerWordVec * indicesOccurrence
+    gradOutsideVecs[outsideWordIdx] = np.negative(gradOutsideVecs[outsideWordIdx])
     ### END YOUR CODE
 
     return loss, gradCenterVec, gradOutsideVecs
@@ -167,7 +169,16 @@ def skipgram(currentCenterWord, windowSize, outsideWords, word2Ind,
     gradOutsideVectors = np.zeros(outsideVectors.shape)
 
     ### YOUR CODE HERE (~8 Lines)
+    outsideWordsIdx = [word2Ind[word] for word in outsideWords]
+    centerWordIdx = word2Ind[currentCenterWord]
+    outsideWordsLossAndGradient = np.array(list(map(
+        lambda x: word2vecLossAndGradient(centerWordVectors[centerWordIdx], x, outsideVectors, dataset),
+        outsideWordsIdx
+    )), dtype=object)
 
+    loss = np.sum(outsideWordsLossAndGradient[:, 0])
+    gradCenterVecs[centerWordIdx] = np.sum(outsideWordsLossAndGradient[:, 1])
+    gradOutsideVectors = np.sum(outsideWordsLossAndGradient[:, 2])
     ### END YOUR CODE
     
     return loss, gradCenterVecs, gradOutsideVectors
