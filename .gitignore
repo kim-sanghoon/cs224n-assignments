@@ -17,3 +17,6 @@ _minted-*
 
 # from assignment 2 - coding
 *.pyc
+**/datasets
+*.npy
+*.pickle
